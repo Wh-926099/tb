@@ -8,9 +8,9 @@ param(
 Write-Host "🚀 开始部署 Lumina 游戏..." -ForegroundColor Cyan
 
 # 检查环境变量
-if (-not $env:GEMINI_API_KEY) {
-    Write-Host "❌ 错误: 未设置 GEMINI_API_KEY 环境变量" -ForegroundColor Red
-    Write-Host "请先设置: `$env:GEMINI_API_KEY='your_api_key_here'" -ForegroundColor Yellow
+if (-not $env:DEEPSEEK_API_KEY) {
+    Write-Host "❌ 错误: 未设置 DEEPSEEK_API_KEY 环境变量" -ForegroundColor Red
+    Write-Host "请先设置: `$env:DEEPSEEK_API_KEY='your_api_key_here'" -ForegroundColor Yellow
     exit 1
 }
 
@@ -33,7 +33,7 @@ if ($DeployType -eq "docker") {
     
     # 构建 Docker 镜像
     Write-Host "🔨 构建 Docker 镜像..." -ForegroundColor Cyan
-    docker build --build-arg GEMINI_API_KEY="$env:GEMINI_API_KEY" -t lumina-game .
+    docker build --build-arg DEEPSEEK_API_KEY="$env:DEEPSEEK_API_KEY" -t lumina-game .
     
     # 停止旧容器（如果存在）
     docker stop lumina-game 2>$null

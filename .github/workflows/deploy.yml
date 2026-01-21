@@ -42,12 +42,14 @@ jobs:
 
       - name: Build
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || '' }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY || '' }}
           BASE_PATH: /${{ github.event.repository.name }}/
         run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

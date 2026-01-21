@@ -1,54 +1,65 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { SquareType, LevelType, CardContent } from "../types";
 import { SQUARE_NAMES, LEVEL_CONFIG, AWARENESS_TOKENS } from "../constants";
 
-// Initialize the client with API key
-// If API key is not set, we'll handle it gracefully in the functions
-const getAIClient = () => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return null;
-  }
-  return new GoogleGenAI({ apiKey });
+// DeepSeek API 配置
+const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
+const MODEL_NAME = "deepseek-chat";
+
+// 获取 API Key
+const getApiKey = (): string | null => {
+  return process.env.API_KEY || process.env.DEEPSEEK_API_KEY || null;
 };
 
-const MODEL_NAME = "gemini-3-flash-preview";
+// 调用 DeepSeek API
+const callDeepSeekAPI = async (prompt: string, responseFormat?: { type: "json_object" }): Promise<string> => {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("API Key missing");
+  }
+
+  const response = await fetch(DEEPSEEK_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: MODEL_NAME,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      response_format: responseFormat,
+      temperature: 0.7,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`DeepSeek API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0]?.message?.content || "";
+};
 
 export const generateCard = async (
   intention: string,
   level: LevelType,
   squareType: SquareType
 ): Promise<CardContent> => {
-  const ai = getAIClient();
-  if (!ai) {
+  const apiKey = getApiKey();
+  if (!apiKey) {
     // Return fallback content if API key is not set
     return {
       title: "API Key 未配置",
-      description: "请在 GitHub Secrets 中设置 GEMINI_API_KEY 以使用 AI 功能。",
+      description: "请在 GitHub Secrets 中设置 DEEPSEEK_API_KEY 以使用 AI 功能。",
       action: "配置 API Key 后重新部署",
       effect: { awareness: 0, pain: 0, service: 0 }
     };
   }
-
-  // Define the schema for the JSON response
-  const cardSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING, description: "A short, mystical title for the card in Chinese. If an awareness token is provided in the prompt, USE IT as the title." },
-      description: { type: Type.STRING, description: "The message of the card in Chinese, relating the square type and specific token to the user's intention." },
-      action: { type: Type.STRING, description: "A short instruction for the player in Chinese (e.g. 'Take a deep breath', 'Release expectation')." },
-      effect: {
-        type: Type.OBJECT,
-        properties: {
-            awareness: { type: Type.INTEGER, description: "Change in awareness tokens (positive or negative)" },
-            pain: { type: Type.INTEGER, description: "Change in pain tokens (positive or negative)" },
-            service: { type: Type.INTEGER, description: "Change in service tokens (positive or negative)" },
-        },
-        description: "The mechanical effect of the card."
-      }
-    },
-    required: ["title", "description", "action", "effect"],
-  };
 
   const levelName = LEVEL_CONFIG[level].name;
   const squareName = SQUARE_NAMES[squareType];
@@ -76,7 +87,20 @@ export const generateCard = async (
 
     请生成一张卡牌，提供与他们的意图和当前层面相关的具体指引。请使用简体中文回复。
     
-    请严格遵循以下规则生成效果 (Effects):
+    请严格遵循以下规则生成效果 (Effects)，并以 JSON 格式返回：
+    
+    {
+      "title": "卡牌标题（中文）",
+      "description": "卡牌描述（中文）",
+      "action": "行动指引（中文）",
+      "effect": {
+        "awareness": 数字（正数或负数，表示觉知代币变化）,
+        "pain": 数字（正数或负数，表示痛苦代币变化）,
+        "service": 数字（正数或负数，表示服务代币变化）
+      }
+    }
+    
+    规则说明：
     
     1. INSPIRATION (灵感): 
        - 获得 1-3 个觉知代币 (Awareness). 
@@ -112,23 +136,29 @@ export const generateCard = async (
        - 随机给予：觉知 (1-2) 或 移除痛苦 (1-2)。
        
     语气要神秘、支持性强，但也要诚实直接。
+    
+    请只返回 JSON 格式，不要包含其他文字。
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: cardSchema,
-        thinkingConfig: { thinkingBudget: 0 } // Disable thinking for faster response
-      },
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response from AI");
+    const responseText = await callDeepSeekAPI(prompt, { type: "json_object" });
     
-    return JSON.parse(text) as CardContent;
+    // 清理响应文本（移除可能的 markdown 代码块标记）
+    let cleanedText = responseText.trim();
+    if (cleanedText.startsWith("```json")) {
+      cleanedText = cleanedText.replace(/^```json\s*/, "").replace(/\s*```$/, "");
+    } else if (cleanedText.startsWith("```")) {
+      cleanedText = cleanedText.replace(/^```\s*/, "").replace(/\s*```$/, "");
+    }
+    
+    const cardData = JSON.parse(cleanedText) as CardContent;
+    
+    // 验证必需字段
+    if (!cardData.title || !cardData.description || !cardData.action || !cardData.effect) {
+      throw new Error("Invalid response format");
+    }
+    
+    return cardData;
 
   } catch (error) {
     console.error("AI Generation Error:", error);
@@ -137,7 +167,7 @@ export const generateCard = async (
       title: "静默的低语",
       description: "宇宙此刻保持沉默，但你内心的声音知道方向。",
       action: "反思你的意图。",
-      effect: { awareness: 1 }
+      effect: { awareness: 1, pain: 0, service: 0 }
     };
   }
 };
@@ -146,8 +176,8 @@ export const generateGraduationMessage = async (
     intention: string,
     level: LevelType
 ): Promise<string> => {
-    const ai = getAIClient();
-    if (!ai) {
+    const apiKey = getApiKey();
+    if (!apiKey) {
         return "你已晋级到下一个层面。";
     }
     
@@ -158,12 +188,10 @@ export const generateGraduationMessage = async (
     请写一段简短的祝贺语（2句话），肯定他们在该层面的成长。请使用简体中文。
   `;
     try {
-        const response = await ai.models.generateContent({
-            model: MODEL_NAME,
-            contents: prompt,
-        });
-        return response.text || "你已经超越了这个层面。";
+        const message = await callDeepSeekAPI(prompt);
+        return message || "你已经超越了这个层面。";
     } catch (e) {
+        console.error("Graduation message error:", e);
         return "你已晋级到下一个层面。";
     }
 }

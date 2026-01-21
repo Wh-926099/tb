@@ -4,7 +4,7 @@
 
 # Lumina - 数字化蜕变游戏
 
-这是一个基于 React + Vite + TypeScript 开发的数字化蜕变游戏，使用 Google Gemini AI 生成游戏内容。
+这是一个基于 React + Vite + TypeScript 开发的数字化蜕变游戏，使用 DeepSeek AI 生成游戏内容。
 
 View your app in AI Studio: https://ai.studio/apps/drive/1Myy-wviJSeJEZDz0rUA_N8cP_2adJA56
 
@@ -19,12 +19,12 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Myy-wviJSeJEZDz0rUA_N8
 
 2. 配置环境变量:
    
-   创建 `.env.local` 文件（或 `.env`），设置你的 Gemini API Key:
+   创建 `.env.local` 文件（或 `.env`），设置你的 DeepSeek API Key:
    ```
-   GEMINI_API_KEY=your_api_key_here
+   DEEPSEEK_API_KEY=your_api_key_here
    ```
    
-   从 [Google AI Studio](https://aistudio.google.com/) 获取 API Key
+   从 [DeepSeek 官网](https://platform.deepseek.com/) 获取 API Key
 
 3. 运行开发服务器:
    ```bash
@@ -40,7 +40,7 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Myy-wviJSeJEZDz0rUA_N8
 最简单的部署方式，一键自动部署！
 
 **快速开始：**
-1. 在 GitHub 仓库设置中添加 Secret：`GEMINI_API_KEY`
+1. 在 GitHub 仓库设置中添加 Secret：`DEEPSEEK_API_KEY`
 2. 启用 GitHub Pages（Source 选择 `GitHub Actions`）
 3. 推送代码到 `main` 分支
 4. 等待自动部署完成
@@ -67,7 +67,7 @@ npm run build
 
 ```
 ├── components/          # React 组件
-├── services/           # API 服务（Gemini AI）
+├── services/           # API 服务（DeepSeek AI）
 ├── types.ts           # TypeScript 类型定义
 ├── constants.ts       # 游戏常量配置
 ├── App.tsx            # 主应用组件

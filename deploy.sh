@@ -10,9 +10,9 @@ DEPLOY_TYPE=${1:-nginx}
 echo "🚀 开始部署 Lumina 游戏..."
 
 # 检查环境变量
-if [ -z "$GEMINI_API_KEY" ]; then
-    echo "❌ 错误: 未设置 GEMINI_API_KEY 环境变量"
-    echo "请先设置: export GEMINI_API_KEY=your_api_key_here"
+if [ -z "$DEEPSEEK_API_KEY" ]; then
+    echo "❌ 错误: 未设置 DEEPSEEK_API_KEY 环境变量"
+    echo "请先设置: export DEEPSEEK_API_KEY=your_api_key_here"
     exit 1
 fi
 
@@ -35,7 +35,7 @@ if [ "$DEPLOY_TYPE" = "docker" ]; then
     
     # 构建 Docker 镜像
     echo "🔨 构建 Docker 镜像..."
-    docker build --build-arg GEMINI_API_KEY="$GEMINI_API_KEY" -t lumina-game .
+    docker build --build-arg DEEPSEEK_API_KEY="$DEEPSEEK_API_KEY" -t lumina-game .
     
     # 停止旧容器（如果存在）
     docker stop lumina-game 2>/dev/null || true

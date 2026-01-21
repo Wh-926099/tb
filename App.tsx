@@ -8,7 +8,7 @@ import {
   CardContent 
 } from './types';
 import { BOARD_LAYOUT, TRACK_LENGTH, LEVEL_CONFIG, SQUARE_NAMES } from './constants';
-import * as GeminiService from './services/geminiService';
+import * as DeepSeekService from './services/deepseekService';
 
 // Components
 import WelcomeScreen from './components/WelcomeScreen.tsx';
@@ -173,7 +173,7 @@ const App: React.FC = () => {
     setShowModal(true);
 
     try {
-        const card = await GeminiService.generateCard(player.intention, player.currentLevel, squareType);
+        const card = await DeepSeekService.generateCard(player.intention, player.currentLevel, squareType);
         setCurrentCard(card);
         setLoadingCard(false);
     } catch (error) {
@@ -245,7 +245,7 @@ const App: React.FC = () => {
       const nextLevel = nextLevelMap[player.currentLevel];
 
       if (nextLevel) {
-          const msg = await GeminiService.generateGraduationMessage(player.intention, player.currentLevel);
+          const msg = await DeepSeekService.generateGraduationMessage(player.intention, player.currentLevel);
           addLog('SYSTEM', `晋升至${LEVEL_CONFIG[nextLevel].name}`, msg);
           setPlayer(prev => ({
               ...prev,

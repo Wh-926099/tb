@@ -5,7 +5,7 @@
 ## 📋 前置要求
 
 - Node.js 18+ 和 npm
-- Gemini API Key（从 [Google AI Studio](https://aistudio.google.com/) 获取）
+- DeepSeek API Key（从 [DeepSeek 官网](https://platform.deepseek.com/) 获取）
 - 服务器（Linux/Windows）或云平台账户
 
 ---
@@ -23,7 +23,7 @@
 npm install
 
 # 创建环境变量文件
-echo "GEMINI_API_KEY=your_api_key_here" > .env
+echo "DEEPSEEK_API_KEY=your_api_key_here" > .env
 
 # 构建生产版本
 npm run build
@@ -113,8 +113,8 @@ RUN npm ci
 COPY . .
 
 # 构建应用（注意：需要在构建时传入环境变量）
-ARG GEMINI_API_KEY
-ENV GEMINI_API_KEY=$GEMINI_API_KEY
+ARG DEEPSEEK_API_KEY
+ENV DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY
 
 RUN npm run build
 
@@ -158,7 +158,7 @@ server {
 
 ```bash
 # 构建镜像（传入 API Key）
-docker build --build-arg GEMINI_API_KEY=your_api_key_here -t lumina-game .
+docker build --build-arg DEEPSEEK_API_KEY=your_api_key_here -t lumina-game .
 
 # 运行容器
 docker run -d -p 80:80 --name lumina lumina-game
@@ -176,7 +176,7 @@ services:
     build:
       context: .
       args:
-        GEMINI_API_KEY: ${GEMINI_API_KEY}
+        DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
     ports:
       - "80:80"
     restart: unless-stopped
@@ -185,7 +185,7 @@ services:
 创建 `.env` 文件：
 
 ```
-GEMINI_API_KEY=your_api_key_here
+DEEPSEEK_API_KEY=your_api_key_here
 ```
 
 运行：
@@ -215,7 +215,7 @@ npm i -g vercel
   "installCommand": "npm install",
   "framework": "vite",
   "env": {
-    "GEMINI_API_KEY": "@gemini_api_key"
+    "DEEPSEEK_API_KEY": "@gemini_api_key"
   }
 }
 ```
@@ -225,7 +225,7 @@ npm i -g vercel
 vercel
 ```
 
-4. 在 Vercel 控制台设置环境变量 `GEMINI_API_KEY`。
+4. 在 Vercel 控制台设置环境变量 `DEEPSEEK_API_KEY`。
 
 #### Netlify 部署
 
@@ -242,14 +242,14 @@ vercel
   status = 200
 
 [build.environment]
-  GEMINI_API_KEY = "your_api_key_here"
+  DEEPSEEK_API_KEY = "your_api_key_here"
 ```
 
 2. 在 Netlify 控制台：
    - 连接 GitHub 仓库
    - 设置构建命令：`npm run build`
    - 设置发布目录：`dist`
-   - 添加环境变量 `GEMINI_API_KEY`
+   - 添加环境变量 `DEEPSEEK_API_KEY`
 
 #### GitHub Pages 部署（推荐）
 
@@ -268,8 +268,8 @@ GitHub Pages 提供两种部署方式：**自动部署（推荐）** 和 **手�
 2. **配置 Secrets**（存储 API Key）：
    - 进入仓库的 `Settings` → `Secrets and variables` → `Actions`
    - 点击 `New repository secret`
-   - Name: `GEMINI_API_KEY`
-   - Value: 你的 Gemini API Key
+   - Name: `DEEPSEEK_API_KEY`
+   - Value: 你的 DeepSeek API Key
    - 点击 `Add secret`
 
 3. **推送代码触发部署**：
@@ -302,7 +302,7 @@ GitHub Pages 提供两种部署方式：**自动部署（推荐）** 和 **手�
    
    创建 `.env.local` 文件：
    ```
-   GEMINI_API_KEY=your_api_key_here
+   DEEPSEEK_API_KEY=your_api_key_here
    BASE_PATH=/your-repo-name/
    ```
    
@@ -336,7 +336,7 @@ GitHub Pages 提供两种部署方式：**自动部署（推荐）** 和 **手�
 创建 `.env.local` 文件（已添加到 .gitignore）：
 
 ```
-GEMINI_API_KEY=your_api_key_here
+DEEPSEEK_API_KEY=your_api_key_here
 ```
 
 ### 生产环境
@@ -354,7 +354,7 @@ GEMINI_API_KEY=your_api_key_here
 1. **创建后端 API 代理**：
    - 在服务器上运行 Node.js 后端
    - 后端持有 API Key
-   - 前端调用后端 API，后端再调用 Gemini API
+   - 前端调用后端 API，后端再调用 DeepSeek API
 
 2. **使用服务器端环境变量**：
    - 在构建时通过 CI/CD 传入环境变量
@@ -385,7 +385,7 @@ npm run preview
 
 ## 📝 部署检查清单
 
-- [ ] 已获取 Gemini API Key
+- [ ] 已获取 DeepSeek API Key
 - [ ] 已配置环境变量
 - [ ] 已执行 `npm run build` 成功
 - [ ] 已上传 `dist` 目录到服务器

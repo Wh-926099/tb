@@ -53,7 +53,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
         </div>
         
         <p className="text-xs text-slate-600 mt-8">
-          Powered by Gemini AI • 自我探索之旅
+          Powered by DeepSeek AI • 自我探索之旅
         </p>
       </div>
     </div>

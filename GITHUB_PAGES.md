@@ -6,7 +6,7 @@
 
 - GitHub 账户
 - 已创建 GitHub 仓库
-- Gemini API Key（从 [Google AI Studio](https://aistudio.google.com/) 获取）
+- DeepSeek API Key（从 [DeepSeek 官网](https://platform.deepseek.com/) 获取）
 
 ---
 
@@ -19,15 +19,27 @@
 3. 在左侧菜单找到 `Secrets and variables` → `Actions`
 4. 点击 `New repository secret`
 5. 填写：
-   - **Name**: `GEMINI_API_KEY`
-   - **Value**: 你的 Gemini API Key
+   - **Name**: `DEEPSEEK_API_KEY`
+   - **Value**: 你的 DeepSeek API Key
 6. 点击 `Add secret`
 
-### 第二步：启用 GitHub Pages
+### 第二步：启用 GitHub Pages（重要！）
 
-1. 在仓库设置中，点击左侧的 `Pages`
-2. 在 `Source` 部分，选择 `GitHub Actions`
-3. 保存设置
+⚠️ **这一步必须在推送代码之前完成，否则部署会失败！**
+
+1. 进入你的 GitHub 仓库
+2. 点击 `Settings`（设置）
+3. 在左侧菜单找到 `Pages`
+4. 在 `Build and deployment` 部分：
+   - **Source**：选择 `GitHub Actions`（不是 `Deploy from a branch`）
+   - 如果看到 "Use a suggested workflow" 或 "Static HTML" 等选项，**不要点击 Configure**
+   - 只需要确保 Source 下拉菜单选择的是 `GitHub Actions`
+5. 保存设置（如果有 Save 按钮，点击保存）
+
+**重要提示**：
+- 如果 Source 显示为 "Deploy from a branch"，需要改为 "GitHub Actions"
+- 如果看不到 "GitHub Actions" 选项，可能是仓库权限问题，确保你有管理员权限
+- 首次启用可能需要几分钟才能生效
 
 ### 第三步：推送代码
 
@@ -172,10 +184,10 @@ https://你的用户名.github.io/仓库名/
 
 ### 1. 部署失败：API Key 未设置
 
-**错误信息**：`GEMINI_API_KEY` is not set
+**错误信息**：`DEEPSEEK_API_KEY` is not set
 
 **解决方法**：
-- 检查是否在 GitHub Secrets 中正确设置了 `GEMINI_API_KEY`
+- 检查是否在 GitHub Secrets 中正确设置了 `DEEPSEEK_API_KEY`
 - 确保 Secret 名称完全匹配（区分大小写）
 
 ### 2. 网站显示 404
@@ -204,7 +216,27 @@ https://你的用户名.github.io/仓库名/
 - 检查 GitHub Secrets 中的 API Key 是否正确
 - 在 Google AI Studio 中验证 API Key 是否有效
 
-### 5. 自定义域名错误：Domain is not a valid public domain
+### 5. 错误：Get Pages site failed
+
+**错误信息**：`Get Pages site failed. Please verify that the repository has Pages enabled and configured to build using GitHub Actions`
+
+**原因**：
+- GitHub Pages 未启用
+- Source 未设置为 "GitHub Actions"
+- 仓库权限不足
+
+**解决方法**：
+1. 进入仓库的 `Settings` → `Pages`
+2. 确保 `Source` 选择的是 `GitHub Actions`（不是 "Deploy from a branch"）
+3. 如果看不到 "GitHub Actions" 选项：
+   - 检查仓库权限（需要管理员权限）
+   - 确保仓库不是私有仓库的免费账户（免费账户的私有仓库不支持 GitHub Pages）
+4. 保存设置后，等待 1-2 分钟
+5. 重新触发工作流（在 Actions 标签页点击 "Run workflow"）
+
+**注意**：工作流中已添加 `enablement: true` 参数，可以自动启用 Pages，但首次部署前最好手动检查设置。
+
+### 6. 自定义域名错误：Domain is not a valid public domain
 
 **错误原因**：
 - 输入了包含协议或路径的域名（如 `https://example.com`）
