@@ -6,9 +6,10 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     
     // GitHub Pages base 路径配置
-    // 如果设置了 GITHUB_REPOSITORY 环境变量，使用仓库名作为 base
-    // 否则使用环境变量 BASE_PATH，如果都没有则默认为 '/'
-    const base = env.BASE_PATH || (env.GITHUB_REPOSITORY ? `/${env.GITHUB_REPOSITORY.split('/')[1]}/` : '/');
+    // 如果设置了 BASE_PATH 环境变量，使用它
+    // 否则默认为 '/'（适用于根域名部署）
+    // 注意：GitHub Pages 项目页面需要使用 /仓库名/ 作为 base
+    const base = env.BASE_PATH || '/';
     
     return {
       base,

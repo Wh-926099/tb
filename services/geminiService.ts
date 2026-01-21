@@ -2,8 +2,15 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { SquareType, LevelType, CardContent } from "../types";
 import { SQUARE_NAMES, LEVEL_CONFIG, AWARENESS_TOKENS } from "../constants";
 
-// Initialize the client. The API key is guaranteed to be in process.env.API_KEY per instructions.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize the client with API key
+// If API key is not set, we'll handle it gracefully in the functions
+const getAIClient = () => {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 const MODEL_NAME = "gemini-3-flash-preview";
 
@@ -12,8 +19,15 @@ export const generateCard = async (
   level: LevelType,
   squareType: SquareType
 ): Promise<CardContent> => {
-  if (!process.env.API_KEY) {
-    throw new Error("API Key missing");
+  const ai = getAIClient();
+  if (!ai) {
+    // Return fallback content if API key is not set
+    return {
+      title: "API Key 未配置",
+      description: "请在 GitHub Secrets 中设置 GEMINI_API_KEY 以使用 AI 功能。",
+      action: "配置 API Key 后重新部署",
+      effect: { awareness: 0, pain: 0, service: 0 }
+    };
   }
 
   // Define the schema for the JSON response
@@ -132,8 +146,13 @@ export const generateGraduationMessage = async (
     intention: string,
     level: LevelType
 ): Promise<string> => {
-     const levelName = LEVEL_CONFIG[level].name;
-     const prompt = `
+    const ai = getAIClient();
+    if (!ai) {
+        return "你已晋级到下一个层面。";
+    }
+    
+    const levelName = LEVEL_CONFIG[level].name;
+    const prompt = `
     玩家已成功完成了蜕变游戏的 ${levelName}。
     他们的意图是: "${intention}"。
     请写一段简短的祝贺语（2句话），肯定他们在该层面的成长。请使用简体中文。
